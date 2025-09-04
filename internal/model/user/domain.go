@@ -10,16 +10,36 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func NewUser(id, email, password, firstName, lastName string) (*User, error) {
+	user := &User{
+		UUID:      id,
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+		Status:    UserStatusActive,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Version:   1,
+	}
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+	if err := user.SetPassword(password); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 type User struct {
-	UUID      string     `json:"uuid"`
-	FirstName string     `json:"first_name"`
-	LastName  string     `json:"last_name"`
-	Email     string     `json:"email"`
-	Password  string     `json:"password"`
-	Status    UserStatus `json:"status"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	Version   int        `json:"version"` // Optimistic locking
+	UUID      string     `json:"id" db:"id"`
+	FirstName string     `json:"first_name" db:"first_name"`
+	LastName  string     `json:"last_name" db:"last_name"`
+	Email     string     `json:"email" db:"email"`
+	Password  string     `json:"password" db:"password"`
+	Status    UserStatus `json:"status" db:"status"`
+	CreatedAt time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at" db:"updated_at"`
+	Version   int        `json:"version" db:"version"` // Optimistic locking
 }
 
 // CheckPassword verifies if the provided password matches the user's password
@@ -37,6 +57,23 @@ func (u *User) SetPassword(password string) error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 	u.Password = string(hashedPassword)
+	return nil
+}
+
+// Validate performs comprehensive validation of the User aggregate
+func (u *User) Validate() error {
+	if u.UUID == "" {
+		return errors.New("user ID cannot be empty")
+	}
+
+	if err := u.validateEmail(); err != nil {
+		return err
+	}
+
+	if err := u.validateName(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -85,23 +122,6 @@ func (u *User) validateName() error {
 
 	if !nameRegex.MatchString(u.LastName) {
 		return errors.New("last name contains invalid characters")
-	}
-
-	return nil
-}
-
-// Validate performs comprehensive validation of the User aggregate
-func (u *User) Validate() error {
-	if u.UUID == "" {
-		return errors.New("user ID cannot be empty")
-	}
-
-	if err := u.validateEmail(); err != nil {
-		return err
-	}
-
-	if err := u.validateName(); err != nil {
-		return err
 	}
 
 	return nil

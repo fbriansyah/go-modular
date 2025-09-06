@@ -20,10 +20,10 @@ type Repository[T any, ID comparable] interface {
 	Delete(ctx context.Context, id ID) error
 
 	// List retrieves entities with pagination
-	List(ctx context.Context, limit, offset int) ([]*T, error)
+	List(ctx context.Context, filter *T, limit, offset int) ([]*T, error)
 
 	// Count returns the total number of entities
-	Count(ctx context.Context) (int64, error)
+	Count(ctx context.Context, filter *T) (int64, error)
 
 	// Exists checks if an entity exists by ID
 	Exists(ctx context.Context, id ID) (bool, error)

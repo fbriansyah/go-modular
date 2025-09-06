@@ -12,7 +12,7 @@ import (
 
 func NewUser(id, email, password, firstName, lastName string) (*User, error) {
 	user := &User{
-		UUID:      id,
+		ID:        id,
 		Email:     email,
 		FirstName: firstName,
 		LastName:  lastName,
@@ -31,7 +31,7 @@ func NewUser(id, email, password, firstName, lastName string) (*User, error) {
 }
 
 type User struct {
-	UUID      string     `json:"id" db:"id"`
+	ID        string     `json:"id" db:"id"`
 	FirstName string     `json:"first_name" db:"first_name"`
 	LastName  string     `json:"last_name" db:"last_name"`
 	Email     string     `json:"email" db:"email"`
@@ -62,7 +62,7 @@ func (u *User) SetPassword(password string) error {
 
 // Validate performs comprehensive validation of the User aggregate
 func (u *User) Validate() error {
-	if u.UUID == "" {
+	if u.ID == "" {
 		return errors.New("user ID cannot be empty")
 	}
 

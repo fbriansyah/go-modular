@@ -1,11 +1,13 @@
 package config
 
+type Config struct {
+	Database DatabaseConfig `mapstructure:"database"`
+}
+
 type DatabaseConfig struct {
-	URL      string
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Name     string
-	SSLMode  string
+	URL     string `mapstructure:"url"`
+	Host    string `mapstructure:"host"`
+	Port    string `mapstructure:"port"`
+	Name    string `mapstructure:"name"`
+	SSLMode string `mapstructure:"sslmode"`
 }

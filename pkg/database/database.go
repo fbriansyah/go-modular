@@ -18,9 +18,9 @@ type Manager struct {
 }
 
 // NewManager creates a new database manager with all components
-func NewManager(cfg *config.DatabaseConfig, migrationsPath string) (*Manager, error) {
+func NewManager(cfg *config.DatabaseConfig, scr *config.DatabaseSecret, migrationsPath string) (*Manager, error) {
 	// Create database connection
-	db, err := NewConnection(cfg, DefaultConnectionOptions())
+	db, err := NewConnection(cfg, scr, DefaultConnectionOptions())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create database connection: %w", err)
 	}
@@ -38,7 +38,7 @@ func NewManager(cfg *config.DatabaseConfig, migrationsPath string) (*Manager, er
 	}
 
 	// Create migration runner
-	migrationRunner, err := NewMigrationRunner(cfg, migrationsPath)
+	migrationRunner, err := NewMigrationRunner(cfg, scr, migrationsPath)
 	if err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to create migration runner: %w", err)

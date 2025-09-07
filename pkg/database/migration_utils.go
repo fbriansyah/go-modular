@@ -27,8 +27,8 @@ type MigrationManager struct {
 }
 
 // NewMigrationManager creates a new migration manager
-func NewMigrationManager(cfg *config.DatabaseConfig, migrationsPath string) (*MigrationManager, error) {
-	runner, err := NewMigrationRunner(cfg, migrationsPath)
+func NewMigrationManager(cfg *config.DatabaseConfig, scr *config.DatabaseSecret, migrationsPath string) (*MigrationManager, error) {
+	runner, err := NewMigrationRunner(cfg, scr, migrationsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create migration runner: %w", err)
 	}

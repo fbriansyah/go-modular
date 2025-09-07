@@ -16,6 +16,7 @@ import (
 type DB struct {
 	*sqlx.DB
 	config *config.DatabaseConfig
+	secret *config.DatabaseSecret
 }
 
 // ConnectionOptions holds database connection configuration
@@ -37,12 +38,12 @@ func DefaultConnectionOptions() ConnectionOptions {
 }
 
 // NewConnection creates a new database connection with connection pooling
-func NewConnection(cfg *config.DatabaseConfig, opts ConnectionOptions) (*DB, error) {
-	return NewConnectionWithTimeout(cfg, opts, 30*time.Second)
+func NewConnection(cfg *config.DatabaseConfig, scr *config.DatabaseSecret, opts ConnectionOptions) (*DB, error) {
+	return NewConnectionWithTimeout(cfg, scr, opts, 30*time.Second)
 }
 
 // NewConnectionWithTimeout creates a new database connection with connection pooling and custom timeout
-func NewConnectionWithTimeout(cfg *config.DatabaseConfig, opts ConnectionOptions, timeout time.Duration) (*DB, error) {
+func NewConnectionWithTimeout(cfg *config.DatabaseConfig, scr *config.DatabaseSecret, opts ConnectionOptions, timeout time.Duration) (*DB, error) {
 	var dsn string
 
 	// Use DATABASE_URL if provided, otherwise build from individual components
@@ -51,7 +52,7 @@ func NewConnectionWithTimeout(cfg *config.DatabaseConfig, opts ConnectionOptions
 	} else {
 		dsn = fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s connect_timeout=%d",
-			cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name, cfg.SSLMode, int(timeout.Seconds()),
+			cfg.Host, cfg.Port, scr.Username, scr.Password, cfg.Name, cfg.SSLMode, int(timeout.Seconds()),
 		)
 	}
 
@@ -112,7 +113,7 @@ func (db *DB) GetDSN() string {
 
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		db.config.Host, db.config.Port, db.config.User,
-		db.config.Password, db.config.Name, db.config.SSLMode,
+		db.config.Host, db.config.Port, db.secret.Username,
+		db.secret.Password, db.config.Name, db.config.SSLMode,
 	)
 }

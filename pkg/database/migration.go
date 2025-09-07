@@ -19,7 +19,7 @@ type MigrationRunner struct {
 }
 
 // NewMigrationRunner creates a new migration runner
-func NewMigrationRunner(cfg *config.DatabaseConfig, migrationsPath string) (*MigrationRunner, error) {
+func NewMigrationRunner(cfg *config.DatabaseConfig, scr *config.DatabaseSecret, migrationsPath string) (*MigrationRunner, error) {
 	var dsn string
 
 	// Use DATABASE_URL if provided, otherwise build from individual components
@@ -28,7 +28,7 @@ func NewMigrationRunner(cfg *config.DatabaseConfig, migrationsPath string) (*Mig
 	} else {
 		dsn = fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-			cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name, cfg.SSLMode,
+			cfg.Host, cfg.Port, scr.Username, scr.Password, cfg.Name, cfg.SSLMode,
 		)
 	}
 

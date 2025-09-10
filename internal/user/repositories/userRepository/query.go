@@ -2,9 +2,14 @@ package userRepository
 
 import (
 	"context"
+	"fmt"
 
 	userModel "github.com/fbriansyah/go-modular/internal/model/user"
 	"github.com/fbriansyah/go-modular/pkg/database"
+)
+
+var (
+	selectFields = "id, email, password_hash as password, first_name, last_name, status, created_at, updated_at, version"
 )
 
 // Count implements userPort.UserRepository.
@@ -32,10 +37,7 @@ func (u *UserRepository) Count(ctx context.Context, filter *userModel.User) (int
 // GetByID implements userPort.UserRepository.
 // Subtle: this method shadows the method (BaseRepository).GetByID of UserRepository.BaseRepository.
 func (u *UserRepository) GetByID(ctx context.Context, id string) (*userModel.User, error) {
-	query := `
-		SELECT id, email, password_hash as password, first_name, last_name, status, created_at, updated_at, version
-		FROM users 
-		WHERE id = $1`
+	query := fmt.Sprintf("SELECT %s FROM users WHERE id = $1", selectFields)
 
 	user, err := u.BaseRepository.GetByID(ctx, id, query)
 	if err != nil {
@@ -87,4 +89,24 @@ func (u *UserRepository) Exists(ctx context.Context, id string) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*userModel.User, error) {
+	query := fmt.Sprintf("SELECT %s FROM users WHERE email = $1", selectFields)
+
+	user := &userModel.User{}
+
+	tx := database.GetTxFromContext(ctx)
+	var err error
+	if tx != nil {
+		err = tx.GetContext(ctx, &user, query, email)
+	} else {
+		err = u.GetDB().GetContext(ctx, &user, query, email)
+	}
+
+	if err != nil {
+		return nil, u.handleError("GetByEmail", err)
+	}
+
+	return user, nil
 }

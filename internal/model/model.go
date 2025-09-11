@@ -5,3 +5,8 @@ type HttpResponse struct {
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
 }
+
+type GeneralListQuery struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}

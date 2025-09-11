@@ -19,3 +19,5 @@ func NewUserService(conf *config.Config, opts ...Option) *UserService {
 	}
 	return userService
 }
+
+var _ userPort.UserService = (*UserService)(nil)

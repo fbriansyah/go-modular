@@ -20,4 +20,10 @@ func NewUserService(conf *config.Config, opts ...Option) *UserService {
 	return userService
 }
 
+func WithUserRepository(userRepository userPort.UserRepository) Option {
+	return func(u *UserService) {
+		u.userRepository = userRepository
+	}
+}
+
 var _ userPort.UserService = (*UserService)(nil)

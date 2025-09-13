@@ -7,7 +7,13 @@ import (
 )
 
 type UserRepository struct {
-	database.BaseRepository[userModel.User, string]
+	*database.BaseRepository[userModel.User, string]
+}
+
+func NewUserRepository(db *database.DB) *UserRepository {
+	return &UserRepository{
+		BaseRepository: database.NewBaseRepository[userModel.User, string](db, "users", "id"),
+	}
 }
 
 var _ userPort.UserRepository = (*UserRepository)(nil)

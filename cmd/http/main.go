@@ -8,15 +8,17 @@ import (
 )
 
 func Main() {
-	conf := config.Config{}
-	secret := config.Secret{}
+	conf, secret, err := config.LoadConfig("./config.yaml", "./secret.yaml")
+	if err != nil {
+		panic(err)
+	}
 	dbManager, err := database.NewManager(&conf.Database, &secret.Database, "./migrations")
 	if err != nil {
 		panic(err)
 	}
 	httpApp := fiber.New()
 	userModel := userModule.NewUserModule(
-		&conf,
+		conf,
 		userModule.WithDB(dbManager.DB),
 		userModule.WithHTTPApp(httpApp),
 	)

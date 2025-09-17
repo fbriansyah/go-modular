@@ -1,6 +1,9 @@
 package http
 
 import (
+	"os"
+	"os/signal"
+
 	"github.com/fbriansyah/go-modular/config"
 	userModule "github.com/fbriansyah/go-modular/internal/user"
 	"github.com/fbriansyah/go-modular/pkg/database"
@@ -24,4 +27,10 @@ func Main() {
 	)
 	userModel.Run()
 	httpApp.Listen(":8080")
+
+	// setup graceful shutdown, listen for interrupt signal
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt)
+	<-signalChan
+	httpApp.Shutdown()
 }
